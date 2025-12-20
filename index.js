@@ -22,59 +22,21 @@ const userSchema = new mongoose.Schema({
 const User = mongoose.model("User", userSchema);
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "test.html"));
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 app.get("/users", (req, res) => {
-  User.find().then(users => {
-    res.json(users);
-  }).catch(err => {
-    console.error(err);
-    res.status(500).json({ error: err.message });
-  });
-});
-
-app.get("/user/:id", (req, res) => {
-  User.findById(req.params.id).then(user => {
-    if (!user) return res.status(404).json({ message: "User not found" });
-    res.json(user);
-  }).catch(err => {
-    console.error(err);
-    res.status(500).json({ error: err.message });
-  });
+  User.find()
+    .then(users => res.json(users))
+    .catch(err => res.status(500).json({ error: err.message }));
 });
 
 app.post("/user", (req, res) => {
-  User.create(req.body).then(user => {
-    res.status(201).json(user);
-  }).catch(err => {
-    console.error(err);
-    res.status(400).json({ error: err.message });
-  });
-});
-
-app.put("/user/:id", (req, res) => {
-  User.findByIdAndUpdate(req.params.id, req.body, { new: true })
-    .then(user => {
-      if (!user) return res.status(404).json({ message: "User not found" });
-      res.json(user);
-    }).catch(err => {
-      console.error(err);
-      res.status(400).json({ error: err.message });
-    });
-});
-
-app.delete("/user/:id", (req, res) => {
-  User.findByIdAndDelete(req.params.id).then(user => {
-    if (!user) return res.status(404).json({ message: "User not found" });
-    res.json({ message: "User deleted successfully" });
-  }).catch(err => {
-    console.error(err);
-    res.status(500).json({ error: err.message });
-  });
+  User.create(req.body)
+    .then(user => res.status(201).json(user))
+    .catch(err => res.status(400).json({ error: err.message }));
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
 module.exports = app;

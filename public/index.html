@@ -27,6 +27,29 @@
         const usersList = document.getElementById("usersList");
         const getUsersBtn = document.getElementById("getUsersBtn");
 
+        function renderUsers(data){
+            usersList.innerHTML = "";
+            data.forEach(user => {
+                const div = document.createElement("div");
+                div.className = "user";
+                div.innerHTML = "<strong>Name:</strong> " + user.name + "<br>" +
+                                "<strong>Email:</strong> " + user.email + "<br>" +
+                                "<strong>Age:</strong> " + user.age + "<br>" +
+                                "<strong>ID:</strong> " + user._id;
+                usersList.appendChild(div);
+            });
+        }
+
+        function fetchUsers(){
+            fetch("/users")
+            .then(res => res.json())
+            .then(data => {
+                if(!Array.isArray(data)) return console.error(data);
+                renderUsers(data);
+            })
+            .catch(err => console.error("Error fetching users:", err));
+        }
+
         form.addEventListener("submit", function(e){
             e.preventDefault();
             fetch("/user", {
@@ -37,32 +60,19 @@
                     email: document.getElementById("email").value,
                     age: Number(document.getElementById("age").value)
                 })
-            }).then(res => res.json())
-            .then(data => {
-                if(data.error) { alert(data.error); console.error(data); return; }
-                alert("User created! Check console.");
-                console.log(data);
-                form.reset();
-            }).catch(err => { console.error(err); alert("Error creating user."); });
-        });
-
-        getUsersBtn.addEventListener("click", function(){
-            fetch("/users")
+            })
             .then(res => res.json())
             .then(data => {
-                if(!Array.isArray(data)) { console.error(data); alert("Error fetching users."); return; }
-                usersList.innerHTML = "";
-                data.forEach(user => {
-                    const div = document.createElement("div");
-                    div.className = "user";
-                    div.innerHTML = "<strong>Name:</strong> " + user.name + "<br>" +
-                                    "<strong>Email:</strong> " + user.email + "<br>" +
-                                    "<strong>Age:</strong> " + user.age + "<br>" +
-                                    "<strong>ID:</strong> " + user._id;
-                    usersList.appendChild(div);
-                });
-            }).catch(err => { console.error(err); alert("Error fetching users."); });
+                if(data.error) return console.error(data);
+                form.reset();
+                fetchUsers();
+            })
+            .catch(err => console.error("Error creating user:", err));
         });
+
+        getUsersBtn.addEventListener("click", fetchUsers);
+
+        window.onload = fetchUsers;
     </script>
 </body>
 </html>
