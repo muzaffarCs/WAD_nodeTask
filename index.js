@@ -31,7 +31,7 @@ app.get("/users", (req, res) => {
     .catch(err => res.status(500).json({ error: err.message }));
 });
 
-app.post("/user", (req, res) => {
+app.post("/users", (req, res) => {
   User.create(req.body)
     .then(user => res.status(201).json(user))
     .catch(err => res.status(400).json({ error: err.message }));
