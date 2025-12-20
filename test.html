@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Test Node API</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Page - Node API</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -13,12 +15,14 @@
         button {
             margin: 5px 0;
             padding: 5px;
+            width: 300px;
         }
 
         .user {
             border: 1px solid #ccc;
             padding: 10px;
             margin: 5px 0;
+            width: 320px;
         }
     </style>
 </head>
@@ -29,22 +33,22 @@
         Name: <input type="text" id="name" required><br>
         Email: <input type="email" id="email" required><br>
         Age: <input type="number" id="age" required><br>
-        <button type="submit">Send</button>
+        <button type="submit">Add User</button>
     </form>
 
     <h1>All Users</h1>
-  <button id="getUsersBtn">Fetch Users</button>
-  <div id="usersList"></div>
+    <button id="getUsersBtn">Fetch Users</button>
+    <div id="usersList"></div>
 
     <script>
         const form = document.getElementById("userForm");
         const usersList = document.getElementById("usersList");
         const getUsersBtn = document.getElementById("getUsersBtn");
+        const API_URL = "/";
 
-        // POST: Create new user
-        form.addEventListener("submit", async (e) => {
+        form.addEventListener("submit", function (e) {
             e.preventDefault();
-            const res = await fetch("http://localhost:3000/user", {
+            fetch(API_URL + "user", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -52,27 +56,38 @@
                     email: document.getElementById("email").value,
                     age: Number(document.getElementById("age").value)
                 })
-            });
-            const data = await res.json();
-            alert("User created! Check console for details.");
-            console.log(data);
-            form.reset();
+            })
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
+                    alert("User created! Check console.");
+                    console.log(data);
+                    form.reset();
+                })
+                .catch(function (err) {
+                    console.error(err);
+                    alert("Error creating user.");
+                });
         });
 
-        // GET: Fetch all users
-        getUsersBtn.addEventListener("click", async () => {
-          const res = await fetch("http://localhost:3000/users");
-          const data = await res.json();
-          usersList.innerHTML = "";
-          data.forEach(user => {
-            const div = document.createElement("div");
-            div.className = "user";
-            div.innerHTML = `<strong>Name:</strong> ${user.name} <br>
-                             <strong>Email:</strong> ${user.email} <br>
-                             <strong>Age:</strong> ${user.age} <br>
-                             <strong>ID:</strong> ${user._id}`;
-            usersList.appendChild(div);
-          });
+        getUsersBtn.addEventListener("click", function () {
+            fetch(API_URL + "users")
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
+                    usersList.innerHTML = "";
+                    data.forEach(function (user) {
+                        const div = document.createElement("div");
+                        div.className = "user";
+                        div.innerHTML = "<strong>Name:</strong> " + user.name + "<br>" +
+                            "<strong>Email:</strong> " + user.email + "<br>" +
+                            "<strong>Age:</strong> " + user.age + "<br>" +
+                            "<strong>ID:</strong> " + user._id;
+                        usersList.appendChild(div);
+                    });
+                })
+                .catch(function (err) {
+                    console.error(err);
+                    alert("Error fetching users.");
+                });
         });
     </script>
 </body>
